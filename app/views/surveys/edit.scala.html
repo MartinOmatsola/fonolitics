@@ -1,0 +1,69 @@
+@(user:User, id: Option[Long], survey: Survey, msg: Option[String]=None)(implicit flash: play.api.mvc.Flash, request: play.api.mvc.RequestHeader)
+
+@import helper._
+
+
+@main(Messages("general.Fonolitics") + " - " + Messages("general.Surveys"), user) {
+    
+    <ul class="breadcrumb">
+        <li><a href="@routes.Surveys.list()">@Messages("general.Surveys")</a> <span class="divider">/</span></li>
+        @id.map { i =>
+            <li class="active"><a href="@routes.Surveys.edit(i)">@survey.name</a></li>
+         }
+    </ul>
+     
+     <ul class="nav nav-tabs">
+        <li class="active"><a href="">@Messages("surveys.Info")</a></li>
+        @if(id.isDefined) { 
+            <li><a href="@routes.Surveys.questions(id.get)">@Messages("surveys.Questions")</a></li>
+            <li><a href="">@Messages("surveys.Results")</a></li>
+            <li><a href="">@Messages("surveys.Charts")</a></li>
+            <li><a href="">@Messages("surveys.Stats")</a></li>
+        }
+     </ul>
+
+     @flash.get("success").map { message =>
+        <div class="alert alert-success">
+            @message
+        </div>
+     }
+
+     @msg.map { message =>
+        <div class="alert alert-danger">
+            @message
+        </div>
+     }
+     
+     @form(if (id.isDefined) routes.Surveys.update(id.get) else routes.Surveys.save()) {
+        <fieldset>
+
+            <table class="table table-striped">
+                <tr>
+                    <td>@Messages("surveys.Name")*</td>
+                    <td><input name="name" id="name" type="text" value="@survey.name"/></td>
+                </tr>
+
+                <tr>
+                    <td>@Messages("surveys.Greeting")*</td>
+                    <td><textarea name="greeting" id="greeting" rows="4" style="width:400px;">@survey.greeting</textarea>
+                </tr>
+                
+                <tr>
+                    <td style="text-align:right" colspan="2">
+                        <input id="submitBtn" type="submit" value="@Messages("general.Save")" class="btn btn-success">
+                        <a href="@routes.Surveys.list()" class="btn btn-warning">@Messages("general.Cancel")</a> 
+                    </td>
+                </tr>
+            </table>
+
+        </fieldset>
+        
+    }
+
+    @if(id.isDefined) {
+        <div style="text-align:center" > 
+            <a href="@routes.Surveys.launch(id.get)" class="btn btn-info">@Messages("general.Launch")</a> 
+        </div>
+    }
+        
+}

@@ -1,0 +1,33 @@
+@(form: Form[(String,String)])(implicit flash: Flash)
+
+@app(Messages("general.Fonolitics") + " | " + Messages("general.Login")) {
+        
+        @helper.form(routes.Application.authenticate) {
+            
+            <h1>@Messages("general.Sign_in")</h1>
+            
+            @form.globalError.map { error =>
+                <p class="alert-error">
+                    @error.message
+                </p>
+            }
+            
+            @flash.get("success").map { message =>
+                <p class="alert-success">
+                    @message
+                </p>
+            }
+            
+            <p>
+                <input type="email" name="email" placeholder="@Messages("general.Email")" id="email" value="@form("email").value">
+            </p>
+            <p>
+                <input type="password" name="password" id="password" placeholder="@Messages("general.Password")">
+            </p>
+            <p>
+                <button type="submit" id="loginbutton" class="btn btn-primary">@Messages("general.Login")</button>
+            </p>
+            
+        }
+        
+}

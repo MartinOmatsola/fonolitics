@@ -1,0 +1,118 @@
+@(user:User, survey: Survey, questions: Option[scala.collection.mutable.ListBuffer[(SurveyQuestion, Option[Seq[SurveyQuestionOption]])]], numQuestions: Int=10, msg: Option[String]=None)(implicit flash: play.api.mvc.Flash, request: play.api.mvc.RequestHeader)
+
+@import helper._
+
+@main(Messages("general.Fonolitics") + " - " + Messages("general.Survey_Questions"), user) {
+
+	<ul class="breadcrumb">
+        <li><a href="@routes.Surveys.list()">@Messages("general.Surveys")</a> <span class="divider">/</span></li>
+        <li class="active"><a href="@routes.Surveys.edit(survey.id.get)">@survey.name</a> <span class="divider">/</span></li>
+        <li><a href="@routes.Surveys.questions(survey.id.get)">@Messages("surveys.Questions")</a></li>
+    </ul>
+     
+     <ul class="nav nav-tabs">
+        <li><a href="@routes.Surveys.edit(survey.id.get)">@Messages("surveys.Info")</a></li>
+        <li class="active"><a href="">@Messages("surveys.Questions")</a></li>
+        <li><a href="">@Messages("surveys.Results")</a></li>
+        <li><a href="">@Messages("surveys.Charts")</a></li>
+        <li><a href="">@Messages("surveys.Stats")</a></li>
+     </ul>
+
+     @flash.get("success").map { message =>
+        <div class="alert alert-success">
+            @message
+        </div>
+     }
+
+     @msg.map { message =>
+        <div class="alert alert-danger">
+            @message
+        </div>
+     }
+
+
+     @form(if (survey.id.isDefined) routes.Surveys.saveQuestions(survey.id.get) else routes.Surveys.saveQuestions(survey.id.get)) {
+        <fieldset>
+
+        	<table class="table table-striped">
+            @questions.map { m =>
+            	@for((m2, i) <- m.zipWithIndex) {
+            		@m2 match { case(question, sOptions) => 
+            				<tr>
+			            		<td>
+			            			<b>@(i+1)</b> <input name="questions" id="" type="text" value="@question.question" class="span10" placeholder="@Messages("surveys.Question") @(i+1)"/><br/>
+			            			@Messages("surveys.Options")<br/>
+
+			            			<input type="hidden" name="question_ids" value="@question.id.get"/>
+
+			            			<span style="width:600px;">
+			            			@sOptions.map { o =>
+			            				@for((opt, j) <- o.zipWithIndex) {
+			            					<input name="@("question" + (i+1) + "_options")" id="" type="text" value="@opt.answer" placeholder="@Messages("surveys.Option") @(j+1)"/>
+
+			            					<input type="hidden" name="@("question" + (i+1) + "_option_ids")" value="@opt.id.get"/> 
+			            				}
+
+			            				@if(o.length < 5) {
+			            					@for(j <- (o.length) to 4) {
+			            						<input name="@("question" + (i+1) + "_options")" id="" type="text" value="" placeholder="@Messages("surveys.Option") @(j+1)"/>
+			            					}
+			            				}
+			            			}.getOrElse {
+                                        @for(j <- 1 to 5) {
+                                            @j <input name="@("question" + (i+1) + "_options")" id="" type="text" value="" placeholder="@Messages("surveys.Option") @j"/> 
+                                        }
+                                    }
+			            			</span>
+			            			
+			            		</td>
+            				</tr>
+            				<tr><td>&nbsp;</td></tr>
+            		}
+            	}
+
+            	@if(m.size < numQuestions) {
+            			@for(i <- (m.size) to (numQuestions - 1)) {
+            				<tr>
+			                    <td>
+			                    	<b>@(i+1)</b> <input name="questions" id="" type="text" value="" class="span10" placeholder="@Messages("surveys.Question") @(i+1)"/><br/>
+			                    	@Messages("surveys.Options")<br/>
+
+			                    	<span style="width:600px">
+			                    	@for(j <- 1 to 5) {
+			                    		@j <input name="@("question" + (i+1) + "_options")" id="" type="text" value="" placeholder="@Messages("surveys.Option") @j"/> 
+			                    	}
+			                    	</span>
+			                    </td>
+	                		</tr>
+	                		<tr><td>&nbsp;</td></tr>
+            			}	
+            		}
+            }.getOrElse {
+            	@for(i <- 1 to numQuestions) {
+	            	<tr>
+	                    <td>
+	                    	<b>@i</b> <input name="questions" id="" type="text" value="" class="span10" placeholder="@Messages("surveys.Question") @i"/><br/>
+	                    	@Messages("surveys.Options")<br/>
+
+	                    	<span style="width:600px">
+	                    	@for(j <- 1 to 5) {
+	                    		@j <input name="@("question" + i + "_options")" id="" type="text" value="" placeholder="@Messages("surveys.Option") @j"/> 
+	                    	}
+	                    	</span>
+	                    </td>
+	                </tr>
+	                <tr><td>&nbsp;</td></tr>
+                }
+            }
+                <tr>
+                    <td style="text-align:right">
+                        <input id="submitBtn" type="submit" value="@Messages("general.Save")" class="btn btn-success">
+                        <a href="@routes.Surveys.edit(survey.id.get)" class="btn btn-warning">@Messages("general.Cancel")</a> 
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+     }
+
+}

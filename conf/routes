@@ -1,0 +1,26 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET		/			controllers.Application.index
+GET     /home    	controllers.Application.index
+
+# Authentication
+GET     /login   	controllers.Application.login
+POST    /login      controllers.Application.authenticate
+GET		/logout		controllers.Application.logout
+
+# Surveys
+GET		/surveys 				controllers.Surveys.list(p:Int ?= 0, s:String ?= "created_at", o:String ?= "ASC" , f ?= "")
+POST	/surveys 				controllers.Surveys.save
+GET		/surveys/new			controllers.Surveys.create
+GET		/surveys/:id 			controllers.Surveys.edit(id:Long)
+POST	/surveys/:id 			controllers.Surveys.update(id:Long)
+GET		/surveys/:id/delete 	controllers.Surveys.delete(id:Long)
+GET		/surveys/:id/questions	controllers.Surveys.questions(id:Long)
+POST	/surveys/:id/questions	controllers.Surveys.saveQuestions(id:Long)
+GET		/surveys/:id/launch		controllers.Surveys.launch(id:Long)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

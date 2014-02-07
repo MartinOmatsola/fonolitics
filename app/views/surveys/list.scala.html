@@ -1,0 +1,132 @@
+@(user: User, currentPage: helpers.Page[Survey], currentVars: helpers.PageVars)(implicit flash: play.api.mvc.Flash, request: play.api.mvc.RequestHeader)
+
+
+@****************************************
+* Helper generating navigation links    *
+****************************************@
+@link(newPage: Int, newOrderBy: Option[String] = None) = @{
+    
+    val order = newOrderBy.map { orderBy =>
+        if (orderBy == currentVars.orderBy) {
+            if (currentVars.order == "ASC") "DESC"
+            else "ASC"
+        } else currentVars.order
+    }.getOrElse(currentVars.order)
+
+    routes.Surveys.list(newPage, newOrderBy.getOrElse(currentVars.orderBy), order, currentVars.filter)
+    
+}
+
+@**********************************
+* Helper generating table headers *
+***********************************@
+@header(orderBy: String, title: String) = {
+    <th class="col@orderBy header @if(currentVars.orderBy == orderBy) @{if(currentVars.order == "DESC") "headerSortDown" else "headerSortUp"}">
+        <a href="@link(0, Some(orderBy))">@title</a>
+    </th>
+}
+
+@main(Messages("general.Fonolitics") + " - " + Messages("general.Surveys"), user) {
+    
+    <ul class="breadcrumb">
+        <li class="active"><a href="@routes.Surveys.list()">@Messages("general.Surveys")</a></li>
+    </ul>
+
+    @flash.get("success").map { message =>
+        <div class="alert alert-success">
+            @message
+        </div>
+    }
+
+    @flash.get("error").map { message =>
+        <div class="alert alert-danger">
+            @message
+        </div>
+    }
+
+    <div id="actions">
+        
+        <table width="100%">
+            <tr>
+                <td>
+        @helper.form(action=routes.Surveys.list()) {
+            <input type="search" id="searchbox" name="f" value="@currentVars.filter" 
+                placeholder="@Messages("surveys.search_placeholder")">
+            <input type="submit" id="searchSubmitBtn" value="@Messages("general.Search")" 
+                class="btn btn-primary">
+            <input type="button" id="clearBtn" value="@Messages("general.Clear")" 
+                class="btn btn-primary" 
+                onclick="javascript:window.location='@routes.Surveys.list()'">
+        }   
+                </td>
+                <td align="right">
+                    <a class="btn btn-success" id="add" href="@routes.Surveys.create()">@Messages("surveys.create")</a>
+                </td>
+        </table>
+    </div>
+
+    
+    @Option(currentPage.items).filterNot(_.isEmpty).map { surveys =>
+        
+        <table class="table table-striped table-condensed">
+            <thead>
+                <tr>
+                    <th width="80"></th>
+                    @header("name", Messages("general.Survey"))
+                    @header("survey_status", Messages("general.Status"))
+                </tr>
+            </thead>
+            <tbody>
+
+                @surveys.map { survey =>
+                    <tr>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-primary" href="@routes.Surveys.delete(survey.id.get)"><i class="icon-remove" title="@Messages("general.Delete")"></i></a>
+                                <a class="btn btn-primary" href="@routes.Surveys.edit(survey.id.get)"><i class="icon-edit" title="@Messages("general.Edit")"></i></a>
+                            </div>
+                        </td>
+                        <td>@survey.name</td>
+                        <td>@survey.surveyStatus</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+        <div id="pagination" class="pagination">
+            <ul>
+                @currentPage.prev.map { page =>
+                    <li class="prev">
+                        <a href="@link(page)">&larr; @Messages("general.Previous")</a>
+                    </li> 
+                }.getOrElse {
+                    <li class="prev disabled">
+                        <a>&larr; @Messages("general.Previous")</a>
+                    </li>
+                }
+                <li class="current">
+                    <a>@Messages("general.Displaying") @(currentPage.offset + 1) @Messages("general.to") @(currentPage.offset + surveys.size) @Messages("general.of") @currentPage.total</a>
+                </li>
+                @currentPage.next.map { page =>
+                    <li class="next">
+                        <a href="@link(page)">@Messages("general.Next") &rarr;</a>
+                    </li> 
+                }.getOrElse {
+                    <li class="next disabled">
+                        <a>@Messages("general.Next") &rarr;</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        
+    }.getOrElse {
+        
+        <div class="well">
+            <em>@Messages("surveys.empty_list")</em>
+        </div>
+        
+    }
+
+        
+}

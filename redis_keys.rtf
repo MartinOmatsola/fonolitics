@@ -1,0 +1,28 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww17740\viewh12440\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 fonolitics redis keys\
+\
+survey_ids -								List of survey_ids (queue of unprocessed surveys)\
+survey:<survey_id> -							Hash of survey info i.e. name, greeting, #questions\
+survey:<survey_id>:questions - 					List of questions\
+survey:<survey_id>:question_ids -				List of question ids\
+survey:<survey_id>:<question_id>:options -		List of options\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+\cf0 survey:<survey_id>:<question_id>:option_ids -		List of option_ids\
+survey:<survey_id>:<question_id>:result -			Hash of option_id -> count\
+\
+process\
+\
+- actor process checks survey queue every 15 minutes\
+- pops 1 survey from queue and initiates calls\
+\
+\
+- add redis interaction methods to Utils class\
+\
+- enqueueSurvey(survey, map[question->options])\
+\
+- getNextQuestion(surveyId, position):Option[SurveyQuestion -> List[SurveyQuestionOption]]}
