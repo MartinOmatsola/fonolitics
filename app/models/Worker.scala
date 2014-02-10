@@ -12,6 +12,7 @@ import play.api.libs.concurrent._
 import akka.util.Timeout
 import akka.pattern.ask
 
+import play.api.Play
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -34,8 +35,10 @@ class Worker extends Actor {
       val surveyId = Redis.getNextSurveyId
       if (surveyId > 0) {
         Survey.findById(surveyId).map { survey =>
-          Logger.info(survey.toString)
-          //place initial call
+          val domain = Play.current.configuration.getString("my.domain").getOrElse("")
+          val endpoint = domain + controllers.routes.Calls.answer(surveyId, 0)
+          Logger.info(endpoint)
+          PlivoXml.makeCall("1234567890", endpoint)
         }
       }
     }

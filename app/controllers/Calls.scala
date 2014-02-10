@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import play.api.data.format.Formats._
 import play.api.i18n._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.Play
 
 import anorm._
 
@@ -29,9 +30,15 @@ object Calls extends Controller {
 				//TODO: get exit message from redis
 				"<Response><Speak>survey is over</Speak></Response>"
 			} else {
+				var preamble = ""
+				if (position == 0) {
+					preamble = Redis.getSurveyDetails(surveyId).get("greeting").getOrElse("") + "."
+				}
+
 				val (question, options) = questionInfo.get
-				val endpoint = request.host + controllers.routes.Calls.answer(surveyId, position + 1) 
-				PlivoXml.getQuestion((question, options), surveyId, endpoint)
+				val domain = Play.current.configuration.getString("my.domain").getOrElse("")
+				val endpoint = domain + controllers.routes.Calls.answer(surveyId, position + 1) 
+				PlivoXml.getQuestion((question, options), surveyId, endpoint, preamble)
 			}
 
 		}
